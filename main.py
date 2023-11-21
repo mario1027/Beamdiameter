@@ -1,6 +1,6 @@
 import sys
 import os
-
+import re
 
 try:
     from pyueye import ueye
@@ -44,7 +44,7 @@ class VideoThread(QThread):
 	         exposure = 30)
 
         else:    
-            self.camera=CameraDummy("laser-bajo-costo-intermitencia.mp4")
+            self.camera=CameraDummy("output_video.mp4")
             self.camera.run()
 
         
@@ -238,6 +238,7 @@ class MainWindow(QMainWindow):
         widgets.btn_openimage.clicked.connect(self.buttonClick)
         widgets.btn_close.clicked.connect(self.closeEvent)
         widgets.btn_themes.clicked.connect(self.change_style)
+        widgets.btn_mean.clicked.connect(self.buttonClick)
         widgets.lineEdit.returnPressed.connect(self.do_action)
         double_validator = QDoubleValidator(0, 10, 16)
         locale = QLocale(QLocale.English, QLocale.UnitedStates)
@@ -284,6 +285,9 @@ class MainWindow(QMainWindow):
         #self.thread.change_pixmap_signal.connect(lambda: self.update_graph2())
         self.thread.start()
         self.paused = False
+        self.N_limit=1
+        self.dataframe_list = [self.thread.LaserAnalyzer.data()]
+        
         try:
             if self.state_in=="btn_widgets":
                 self.table_output(self.thread.LaserAnalyzer.data())
@@ -297,7 +301,7 @@ class MainWindow(QMainWindow):
         # self.canvas.axes.set_title("Semieje menor")
         # self.canvas.axes.text(0, 100, '  Gaussian')
         # self.canvas.axes.set_xlabel('f desde el centro [%s]' % self.thread.LaserAnalyzer.LaserData.units)
-        # self.canvas.axes.set_ylabel('Intensidad a lo largo del semieje menor (%)')
+        # self.canvas.axes.set_ylabel('Intensity a lo largo del semieje menor (%)')
         # self.canvas.axes.set_title('Semieje menor')
         # try:
 
@@ -318,8 +322,8 @@ class MainWindow(QMainWindow):
         # self.smmx = self.thread.LaserAnalyzer.LaserData.zx
         # self.canvas1.axes.set_title("Semieje menor")
         # self.canvas1.axes.text(0, 100, '  Gaussian')
-        # self.canvas1.axes.set_xlabel('Distancia desde el centro [%s]' % self.thread.LaserAnalyzer.LaserData.units)
-        # self.canvas1.axes.set_ylabel('Intensidad a lo largo del semieje menor (%)')
+        # self.canvas1.axes.set_xlabel('Distance from the center [%s]' % self.thread.LaserAnalyzer.LaserData.units)
+        # self.canvas1.axes.set_ylabel('Intensity a lo largo del semieje menor (%)')
         # self.canvas1.axes.set_title('Semieje mayor')
         # self.line21, = self.canvas1.axes.plot(self.zx, self.smmx*100,'.b',label='original', animated=True, lw=2)
         # self.line22, = self.canvas1.axes.plot(self.zx, self.thread.LaserAnalyzer.Semimajor.I, 'red', label='Interpolada', animated=True, lw=2)
@@ -346,8 +350,8 @@ class MainWindow(QMainWindow):
                                     name = "adjust", 
                                     antialias = True)
         self.data_canvas012 =  self.graphWidget.plotItem
-        self.data_canvas012.setLabels(bottom = 'Distancia desde el centro [%s]' % self.thread.LaserAnalyzer.LaserData.units, 
-                     left = 'Intensidad a lo largo del semimajor (%)' , 
+        self.data_canvas012.setLabels(bottom = 'Distance from the center [%s]' % self.thread.LaserAnalyzer.LaserData.units, 
+                     left = 'Intensity along the semimajor axis (%)' , 
                      top = "Semimajor")
   
         self.data_canvas012.addLegend(offset = (0,5),labelTextSize = "11pt")
@@ -376,8 +380,8 @@ class MainWindow(QMainWindow):
                                     name = "adjust", 
                                     antialias = True)
         self.data_canvas022 =  self.graphWidget2.plotItem
-        self.data_canvas022.setLabels(bottom = 'Distancia desde el centro [%s]' % self.thread.LaserAnalyzer.LaserData.units, 
-                     left = 'Intensidad a lo largo del semiminor (%)' , 
+        self.data_canvas022.setLabels(bottom = 'Distance from the center [%s]' % self.thread.LaserAnalyzer.LaserData.units, 
+                     left = 'Intensity along the semiminor axis (%)' , 
                      top = "Semiminor")
   
         self.data_canvas022.addLegend(offset = (0,5),labelTextSize = "11pt")
@@ -511,11 +515,28 @@ class MainWindow(QMainWindow):
 
     # BUTTONS CLICK
     # Post here your functions for clicked buttons
-    
+
+    def load_svg_as_icon(self,path):
+        file = QFile(path)
+        if not file.open(QFile.ReadOnly | QFile.Text):
+            print(f"Failed to open {path}")
+            return None
+        renderer = QSvgRenderer(file.readAll())
+        if renderer.isValid():
+            pixmap = QPixmap(renderer.defaultSize())
+            pixmap.fill(Qt.transparent)
+            painter = QPainter(pixmap)
+            renderer.render(painter)
+            painter.end()
+            return QIcon(pixmap)
+        else:
+            print(f"Failed to load SVG from {path}")
+            return None
     def buttonClick(self):
         # GET BUTTON CLICKED
         btn = self.sender()
         btnName = btn.objectName()
+        print(btn)
 
         # SHOW HOME PAGE
         if btnName == "btn_home":
@@ -560,8 +581,132 @@ class MainWindow(QMainWindow):
             if fileName!="":
                 self.btn_play_press=False
                 self.add_image(fileName,self.disply_width,self.display_height)
+        if btnName == "btn_mean":
+            print("btn_mean clicked!")
+            self.N_limit += 1
+            
+            if self.N_limit <= 10:
+                btn.setStyleSheet(f"""background-image: url(:/icons/images/icons/sum{self.N_limit}.svg);""")
+                if self.N_limit == 11:
+                    self.N_limit = 20
+            elif self.N_limit > 10 and self.N_limit < 20:
+                self.N_limit = 20
+                btn.setStyleSheet("""background-image: url(:/icons/images/icons/sum20.svg);""")
+            else:
+                self.N_limit = 1
+                btn.setStyleSheet("""background-image: url(:/icons/images/icons/sum.png);""")
+
+
+         
+       
+        
+            
+
+    # Función para extraer solo valores numéricos
+    def extract_numeric(self, value):
+        match = re.search(r'[-+]?\d*\.?\d+', str(value))
+        return float(match.group()) if match else np.nan
     
-    
+    # Limpiar la lista de DataFrames para obtener solo valores numéricos
+    # Limpiar la lista de DataFrames para obtener solo valores numéricos y consistentes
+    def clean_dataframe_list(self):
+        # Crear una lista para almacenar las copias limpias
+        cleaned_dataframes = []
+
+        # Iterar sobre la lista original y aplicar limpieza
+        for df in self.dataframe_list:
+            if 'Attributes' in df.columns:
+                # Elimina la columna 'Attributes'
+                df_no_attr = df.drop('Attributes', axis=1)
+
+                # Aplica el extracto numérico a cada celda y descarta filas con NaN
+                cleaned_df = df_no_attr.applymap(lambda x: self.extract_numeric(x)).dropna(axis=0)
+            else:
+                # Si no tiene la columna 'Attributes', simplemente limpia y descarta filas con NaN
+                cleaned_df = df.applymap(lambda x: self.extract_numeric(x)).dropna(axis=0)
+
+            cleaned_dataframes.append(cleaned_df)
+
+        return cleaned_dataframes  # Devuelve la lista de DataFrames limpiada
+
+     
+    def validate_dataframe_list(self):
+        """
+        Validates that the list of DataFrames is not empty and that all DataFrames have the same
+        dimensions and column names.
+
+        :raises ValueError: If the list is empty, or if DataFrames have inconsistent dimensions o columnas.
+        """
+        if not self.dataframe_list:
+            raise ValueError("The list of DataFrames cannot be empty.")
+
+        base_shape = self.dataframe_list[0].shape
+        base_columns = self.dataframe_list[0].columns
+
+        for i, df in enumerate(self.dataframe_list):
+            # Check for consistent shape
+            if df.shape != base_shape:
+                raise ValueError(
+                    f"DataFrame at index {i} has shape {df.shape}, but expected {base_shape}."
+                )
+
+            # Check for consistent column names
+            if not df.columns.equals(base_columns):
+                raise ValueError(
+                    f"DataFrame at index {i} tiene columnas {list(df.columns)}, pero esperaba {list(base_columns)}."
+                )
+
+    def calculate_mean_and_std(self):
+        # Limpiar la lista de DataFrames y obtener la copia limpia
+        cleaned_dataframes = self.clean_dataframe_list()
+
+        # Verificar que la lista de copias limpias no esté vacía
+        if not cleaned_dataframes:
+            raise ValueError("No hay datos numéricos disponibles después de la limpieza.")
+
+        # Verifica que todos los DataFrames en la lista tengan el mismo número de columnas
+        base_columns = cleaned_dataframes[0].columns
+        if not all(df.columns.equals(base_columns) for df in cleaned_dataframes):
+            raise ValueError("Los DataFrames limpios tienen un número inconsistente de columnas.")
+
+        # Apilar datos para cálculo de media y desviación estándar
+        data_stack = np.stack([df.to_numpy().astype(float) for df in cleaned_dataframes])
+
+        # Calcular la media y la desviación estándar
+        mean = np.mean(data_stack, axis=0)
+        std_dev = np.std(data_stack, axis=0, ddof=0)
+
+        # Crear DataFrames con resultados
+        df_mean = pd.DataFrame(mean, columns=base_columns)
+        df_std_dev = pd.DataFrame(std_dev, columns=base_columns)
+
+        # Combinar la media y la desviación estándar en un formato legible
+        df_result = df_mean.round(0).astype(str) + "±" + df_std_dev.round(2).astype(str)
+
+        # DataFrame de 'Attributes'
+        df_Attributes = pd.DataFrame({
+            'Attributes': ['Width 13.5% (μm)', 'Width 50% (μm)', 'Width 80% (μm)', 'Intensity (%)', 'Centroid', 
+                        'Correlation (%)', 'resolution (px)', 'Eccentricity', 'Pixel_size (μm)', 'φ(°)']
+        })
+
+        # Concatenar la columna 'Attributes' al final
+        df_final = pd.concat([df_Attributes, df_result], axis=1)
+        print("limit",self.N_limit)
+        return df_final
+          
+    def update_statistics(self, new_dataframe: pd.DataFrame):
+        """
+        Update the list of DataFrames with a new DataFrame, while ensuring the list does not exceed the limit defined by N_limit.
+
+        Args:
+            new_dataframe (pd.DataFrame): A new DataFrame to include in the list.
+        """
+        # Append the new DataFrame to the list
+        self.dataframe_list.append(new_dataframe)
+
+        # If the list length exceeds the N_limit, remove the oldest DataFrame
+        if len(self.dataframe_list) > self.N_limit - 1:
+            self.dataframe_list.pop(0)
     
     @Slot(np.ndarray)
     def update_image(self, frame,widget_width,widget_height):
@@ -571,8 +716,13 @@ class MainWindow(QMainWindow):
             self.display_height = widgets.widget.size().height()
             qt_img = self.convert_cv_qt(frame,widget_width,widget_height)
             self.image_label.setPixmap(qt_img)
-        
-            self.table_output(self.thread.LaserAnalyzer.data())
+            if self.N_limit==1:
+                self.table_output(self.thread.LaserAnalyzer.data())
+                self.dataframe_list = [self.thread.LaserAnalyzer.data()]
+            elif self.N_limit>1:
+                self.update_statistics(self.thread.LaserAnalyzer.data())
+                self.table_output(self.calculate_mean_and_std())
+                
             
         if self.state_in == "home":
             self.disply_width = widgets.widget.size().width()
@@ -593,7 +743,12 @@ class MainWindow(QMainWindow):
         qt_img = self.convert_cv_qt(frame,widget_width,widget_height)
         self.image_label.setPixmap(qt_img)
         self.thread.addimage(frame)
-        self.table_output(self.thread.LaserAnalyzer.data())
+        if self.N_limit==1:
+            self.table_output(self.thread.LaserAnalyzer.data())
+            self.dataframe_list = [self.thread.LaserAnalyzer.data()]
+        elif self.N_limit>1:
+            self.update_statistics(self.thread.LaserAnalyzer.data())
+            self.table_output(self.calculate_mean_and_std())
         
 
         self.disply_width = widgets.widget.size().width()
@@ -621,8 +776,13 @@ class MainWindow(QMainWindow):
     def update_table_home(self):
         if not self.paused and self.state_in == "home":
             # Supongamos que tienes un DataFrame llamado 'dataframe' con datos
-            df=self.thread.LaserAnalyzer.data()
-            df["semi-axis major beam"][0]
+            if self.N_limit==1:
+                df=self.thread.LaserAnalyzer.data()
+                self.dataframe_list = [self.thread.LaserAnalyzer.data()]
+            elif self.N_limit>1:
+                self.update_statistics(self.thread.LaserAnalyzer.data())
+                df = self.calculate_mean_and_std()
+            
             dataframe = pd.DataFrame({
                 'Col 1': ["", "", "Centroid [μm]", "Width [μm] (80%)", "Width [μm] (50%)","Width [μm] (13.5%)", "Correlation (%)"], # Añadimos una fila vacía
                 'Col 2': ["Semimajor", "Beam", df["semi-axis major beam"][4], df["semi-axis major beam"][2], df["semi-axis major beam"][1], df["semi-axis major beam"][0], df["semi-axis major beam"][5]], # Añadimos elementos vacíos en los bordes

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.0
+## Created by: Qt User Interface Compiler version 6.6.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -734,6 +734,13 @@ class Ui_MainWindow(object):
         self.btn_save.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-save.png)")
 
         self.verticalLayout_8.addWidget(self.btn_save)
+
+        self.btn_mean = QPushButton(self.topMenu)
+        self.btn_mean.setObjectName(u"btn_mean")
+        self.btn_mean.setMinimumSize(QSize(0, 45))
+        self.btn_mean.setStyleSheet(u"background-image: url(:/icons/images/icons/sum.png)")
+
+        self.verticalLayout_8.addWidget(self.btn_mean)
 
 
         self.verticalMenuLayout.addWidget(self.topMenu, 0, Qt.AlignTop)
@@ -1553,7 +1560,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1587,6 +1594,10 @@ class Ui_MainWindow(object):
         self.btn_save.setToolTip(QCoreApplication.translate("MainWindow", u"Save", None))
 #endif // QT_CONFIG(tooltip)
         self.btn_save.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+#if QT_CONFIG(tooltip)
+        self.btn_mean.setToolTip(QCoreApplication.translate("MainWindow", u"Mean", None))
+#endif // QT_CONFIG(tooltip)
+        self.btn_mean.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.titleRightInfo.setText(QCoreApplication.translate("MainWindow", u"Beamdiameter", None))
 #if QT_CONFIG(tooltip)
         self.settingsTopBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Settings", None))

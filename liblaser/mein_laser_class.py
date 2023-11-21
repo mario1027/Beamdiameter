@@ -130,7 +130,7 @@ class LaserAnalyzer:
             core2 = 0
 
         exent=np.sqrt(1-(min(self.Semimajor.rx1,self.Semiminor.ry1)**2)/(max(self.Semimajor.rx1,self.Semiminor.ry1)**2))
-        datos["Atributos"]=["Width 13.5% (μm)","Width 50% (μm)","Width 80% (μm)","Intensidad (%)","Centroid","Correlation (%)","resolution (px)","Eccentricity", "Pixel_size (μm)","φ(°)"]
+        datos["Attributes"]=["Width 13.5% (μm)","Width 50% (μm)","Width 80% (μm)","Intensity (%)","Centroid","Correlation (%)","resolution (px)","Eccentricity", "Pixel_size (μm)","φ(°)"]
         datos["semi-axis major beam"]=[str(round(self.Semimajor.dimx1data)),
                                     str(round(self.Semimajor.dimx2data)),
                                     str(round(self.Semimajor.dimx3data)),

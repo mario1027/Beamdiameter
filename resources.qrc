@@ -261,5 +261,17 @@
     <file>images/icons/icon_minimize.png</file>
     <file>images/icons/icon_restore.png</file>
     <file>images/icons/icon_settings.png</file>
+    <file>images/icons/sum.png</file>
+    <file>images/icons/sum1.svg</file>
+    <file>images/icons/sum2.svg</file>
+    <file>images/icons/sum3.svg</file>
+    <file>images/icons/sum4.svg</file>
+    <file>images/icons/sum5.svg</file>
+    <file>images/icons/sum6.svg</file>
+    <file>images/icons/sum7.svg</file>
+    <file>images/icons/sum8.svg</file>
+    <file>images/icons/sum9.svg</file>
+    <file>images/icons/sum10.svg</file>
+    <file>images/icons/sum20.svg</file>
   </qresource>
 </RCC>

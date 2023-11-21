@@ -16,7 +16,7 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
-
+from PySide6.QtSvg import QSvgRenderer
 # GUI FILE
 from . ui_main import Ui_MainWindow
 
