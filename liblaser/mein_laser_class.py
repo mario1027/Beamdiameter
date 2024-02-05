@@ -271,10 +271,11 @@ class LaserData:
         self.image = o_image
         
         self.image = subtract_iso_background(self.image, background_fraction=self.background_fraction)
-        
+        self.mean=self.image.mean()
+        self.std=self.image.std()
         ret, thresh = cv2.threshold(self.image * 2, int(np.max(self.image) * 2 * 0.035), np.max(self.image) * 2, cv2.THRESH_BINARY)
         self.image[thresh < np.max(thresh)] = 0
-        xc, yc, self.dx, self.dy, self.phi = measure_beam_size(o_image, max_iter=50)
+        xc, yc, self.dx, self.dy, self.phi = measure_beam_size(o_image, max_iter=25)
         self.xc, self.yc = xc, yc
         if self.crop:
             self.image, self.xc, self.yc = crop_image_to_integration_rectangle(self.image, xc, yc, self.dx, self.dy, self.phi)
@@ -353,17 +354,29 @@ class Semiminor:
 
         self.I = yy
         
-        self.f_r = interp1d(yy[x_x:], self.ss[x_x:], kind='cubic',fill_value="extrapolate")
+        
 
-       
-        self.ry1 = abs(self.f_r(baseline))
-        self.ry2 = abs(self.f_r(baseline1))
-        self.ry3 = abs(self.f_r(baseline2))
-        self.f_rdata1 = interp1d(zy[x_x:], self.ss[x_x:], fill_value="extrapolate")
-        self.f_rdata2 = interp1d(zy[:x_x], self.ss[:x_x], fill_value="extrapolate")
-        self.dimy1data = abs(self.f_rdata1(baseline)) + abs(self.f_rdata2(baseline))
-        self.dimy2data = abs(self.f_rdata1(baseline1)) + abs(self.f_rdata2(baseline1))
-        self.dimy3data = abs(self.f_rdata1(baseline2)) + abs(self.f_rdata2(baseline2))
+        if LaserData.mean > 0.08:
+            self.f_r = interp1d(yy[x_x:], self.ss[x_x:], kind='cubic',fill_value="extrapolate")
+        
+            self.ry1 = abs(self.f_r(baseline))
+            self.ry2 = abs(self.f_r(baseline1))
+            self.ry3 = abs(self.f_r(baseline2))
+            self.f_rdata1 = interp1d(zy[x_x:], self.ss[x_x:], fill_value="extrapolate")
+            self.f_rdata2 = interp1d(zy[:x_x], self.ss[:x_x], fill_value="extrapolate")
+            self.dimy1data = abs(self.f_rdata1(baseline)) + abs(self.f_rdata2(baseline))
+            self.dimy2data = abs(self.f_rdata1(baseline1)) + abs(self.f_rdata2(baseline1))
+            self.dimy3data = abs(self.f_rdata1(baseline2)) + abs(self.f_rdata2(baseline2))
+        else:
+        
+            self.ry1 = abs(LaserData.d_min_s )
+            self.ry2 = abs(LaserData.d_min_s*0.4)
+            self.ry3 = abs(LaserData.d_min_s*0.19)
+            self.dimy1data = abs(LaserData.r_min_s)*0.45 + abs(LaserData.r_min_s*0.47)
+            self.dimy2data = abs(LaserData.r_min_s*0.4)*0.45 + abs(LaserData.r_min_s*0.4*0.47)
+            self.dimy3data = abs(LaserData.r_min_s*0.19)*0.45 + abs(LaserData.r_min_s*0.19*0.47)
+            
+            
 
 
 class Semimajor:
@@ -409,14 +422,22 @@ class Semimajor:
         if max(self.yy)!=0:
             self.yy = 100 * self.yy / max(self.yy)
         self.I = self.yy
-
-        f_r = interp1d(self.yy[x_x:], self.ss[x_x:], kind='cubic',fill_value="extrapolate")
-        self.rx1 = abs(f_r(baseline))
-        self.rx2 = abs(f_r(baseline1))
-        self.rx3 = abs(f_r(baseline2))
+        if LaserData.mean > 0.08:
+            f_r = interp1d(self.yy[x_x:], self.ss[x_x:], kind='cubic',fill_value="extrapolate")
+            self.rx1 = abs(f_r(baseline))
+            self.rx2 = abs(f_r(baseline1))
+            self.rx3 = abs(f_r(baseline2))
+            
+            self.f_rdata1 = interp1d(zx[int(x_x):], self.ss[x_x:], fill_value="extrapolate")
+            self.f_rdata2 = interp1d(zx[:x_x], self.ss[:x_x], fill_value="extrapolate")
+            self.dimx1data = abs(self.f_rdata1(baseline)) + abs(self.f_rdata2(baseline))
+            self.dimx2data = abs(self.f_rdata1(baseline1)) + abs(self.f_rdata2(baseline1))
+            self.dimx3data = abs(self.f_rdata1(baseline2)) + abs(self.f_rdata2(baseline2))
+        else:
+            self.rx1 = abs(LaserData.d_mag_s )
+            self.rx2 = abs(LaserData.d_mag_s*0.4)
+            self.rx3 = abs(LaserData.d_mag_s*0.19)
+            self.dimx1data = abs(LaserData.r_mag_s)*0.45 + abs(LaserData.r_mag_s*0.47)
+            self.dimx2data = abs(LaserData.r_mag_s*0.4)*0.45 + abs(LaserData.r_mag_s*0.4*0.47)
+            self.dimx3data = abs(LaserData.r_mag_s*0.19)*0.45 + abs(LaserData.r_mag_s*0.19*0.47)
         
-        self.f_rdata1 = interp1d(zx[int(x_x):], self.ss[x_x:], fill_value="extrapolate")
-        self.f_rdata2 = interp1d(zx[:x_x], self.ss[:x_x], fill_value="extrapolate")
-        self.dimx1data = abs(self.f_rdata1(baseline)) + abs(self.f_rdata2(baseline))
-        self.dimx2data = abs(self.f_rdata1(baseline1)) + abs(self.f_rdata2(baseline1))
-        self.dimx3data = abs(self.f_rdata1(baseline2)) + abs(self.f_rdata2(baseline2))

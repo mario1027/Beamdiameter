@@ -33,7 +33,7 @@ class VideoThread(QThread):
         super().__init__()
         
         self._run_flag = True
-        self.filter=0.035
+        self.filter=0.05
         self.pixel_size=5.2
         self.paused = False
         self.typecamera="eye"
@@ -44,7 +44,7 @@ class VideoThread(QThread):
 	         exposure = 30)
 
         else:    
-            self.camera=CameraDummy("calibration2.mp4")
+            self.camera=CameraDummy("laser-bajo-costo-intermitencia.mp4")
             self.camera.run()
 
         
@@ -77,7 +77,7 @@ class VideoThread(QThread):
                 
                     gray=self.camera.frame
                 
-                    self.LaserAnalyzer=LaserAnalyzer(gray , self.pixel_size, units='μm', background_fraction=self.filter,crop=True)
+                    self.LaserAnalyzer=LaserAnalyzer(gray , self.pixel_size, units='μm', background_fraction=self.filter,crop=False)
                     gray=self.LaserAnalyzer.LaserData.image
                 center_coordinates = (int(self.LaserAnalyzer.LaserData.xc), int(self.LaserAnalyzer.LaserData.yc))
 
