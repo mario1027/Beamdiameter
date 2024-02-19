@@ -32,6 +32,15 @@ pip install -r requirements.txt
 ```bash
 python3 main.py
 ```
+## Additional Instructions for uEye Cameras:
+
+If you plan to use a uEye camera, you'll need to install the camera drivers, which can be found on the official uEye website. Additionally, you'll need to install Pyueye, which is the Python API for uEye cameras. Please note that we are not affiliated with uEye; we simply contribute to the community.
+
+To use a uEye camera, ensure that the attribute `self.typecamera` in `VideoThread` within the `main.py` file is set to "Ueye".
+
+```bash
+self.typecamera="Ueye"
+```
 ## Compatibility:
 This software version is compatible with Python 3.9, 3.10, 3.11, and 3.12.
 
