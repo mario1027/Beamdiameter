@@ -119,12 +119,15 @@ class LaserAnalyzer:
         coaux1min=min(sum(cx),sum(cox))
         coauy1m=max(sum(cy),sum(coy))
         coauy1min=min(sum(cy),sum(coy))
-        if abs(sum(cx))>0:
-            core1=100-100*abs(abs(coaux1m)-abs(coaux1min))/abs(sum(cx))
-            core2=100-100*abs(abs(coauy1m)-abs(coauy1min))/abs(sum(cy))
+        if abs(sum(cx)) != 0:
+            core1 = 100 - 100 * abs(abs(coaux1m) - abs(coaux1min)) / abs(sum(cx))
         else:
-            core1=0
-            core2=0
+            core1 = 0  # Otra acción que desees realizar en caso de división por cero
+
+        if abs(sum(cy)) != 0:
+            core2 = 100 - 100 * abs(abs(coauy1m) - abs(coauy1min)) / abs(sum(cy))
+        else:
+            core2 = 0
 
         exent=np.sqrt(1-(min(self.Semimajor.rx1,self.Semiminor.ry1)**2)/(max(self.Semimajor.rx1,self.Semiminor.ry1)**2))
         datos["Atributos"]=["Width 13.5% (μm)","Width 50% (μm)","Width 80% (μm)","Intensidad (%)","Centroid","Correlation (%)","resolution (px)","Eccentricity", "Pixel_size (μm)","φ(°)"]
@@ -327,9 +330,10 @@ class Semiminor:
         s = LaserData.sy
         a = 1
 
-        if max(zy)!=0:
+        if max(zy) != 0:
             zy = 100 * zy / max(zy)
-        if LaserData.zz !=0:
+            
+        if LaserData.zz != 0:
             baseline = a * 100 / np.exp(2) + LaserData.background / LaserData.zz
             baseline1 = a * 50 + LaserData.background / LaserData.zz
             baseline2 = a * 80 + LaserData.background / LaserData.zz
@@ -337,64 +341,66 @@ class Semiminor:
             baseline = a * 100 / np.exp(2) + LaserData.background 
             baseline1 = a * 50 + LaserData.background 
             baseline2 = a * 80 + LaserData.background 
+            
         self.ss = s * LaserData.pixel_size
         # Remove duplicate values from yy and keep corresponding ss values
         self.ss, unique_indices = np.unique(self.ss, return_index=True)
         zy = zy[unique_indices]
         x_x = int(len(s) / 2)
         
-        if LaserData.zz !=0:
-            if LaserData.r_minor !=0:
+        if LaserData.zz != 0:
+            if LaserData.r_minor != 0:
                 yy = a * np.exp(-2 * (s / LaserData.r_minor) ** 2) + LaserData.background / LaserData.zz
             else:
-                 yy = a * np.exp(-2 * s ) + LaserData.background / LaserData.zz
+                yy = a * np.exp(-2 * s) + LaserData.background / LaserData.zz
         else:
-            if LaserData.r_minor !=0:
+            if LaserData.r_minor != 0:
                 yy = a * np.exp(-2 * (s / LaserData.r_minor) ** 2) + LaserData.background
             else:
-                yy = a * np.exp(-2 * s ) + LaserData.background
-        if max(yy)!=0: 
+                yy = a * np.exp(-2 * s) + LaserData.background
+        
+        if max(yy) != 0: 
             yy = 100 * yy / max(yy)
-
-
+        
         self.I = yy
         
-        
         print(LaserData.mean)
+        
         if LaserData.mean > 0.095:
-            if not len(yy) != len(self.ss):
-                self.f_r = interp1d(yy[x_x:], self.ss[x_x:], kind='cubic',fill_value="extrapolate")
-            
-                self.ry1 = abs(self.f_r(baseline))
-                self.ry2 = abs(self.f_r(baseline1))
-                self.ry3 = abs(self.f_r(baseline2))
+            if len(yy) != len(self.ss):
+                self.ry1 = abs(LaserData.d_min_s)
+                self.ry2 = abs(LaserData.d_min_s * 0.4)
+                self.ry3 = abs(LaserData.d_min_s * 0.19)
+                self.dimy1data = abs(LaserData.r_min_s) * 0.45 + abs(LaserData.r_min_s * 0.47)
+                self.dimy2data = abs(LaserData.r_min_s * 0.4) * 0.45 + abs(LaserData.r_min_s * 0.4 * 0.47)
+                self.dimy3data = abs(LaserData.r_min_s * 0.19) * 0.45 + abs(LaserData.r_min_s * 0.19 * 0.47)
+            else:
+                # Los arrays no están vacíos, se pueden pasar a interp1d
+                f_r = interp1d(yy[x_x:], self.ss[x_x:], kind='cubic', fill_value="extrapolate")
+                
+                self.ry1 = abs(f_r(baseline))
+                self.ry2 = abs(f_r(baseline1))
+                self.ry3 = abs(f_r(baseline2))
+                
                 self.f_rdata1 = interp1d(zy[x_x:], self.ss[x_x:], fill_value="extrapolate")
                 self.f_rdata2 = interp1d(zy[:x_x], self.ss[:x_x], fill_value="extrapolate")
                 self.dimy1data = abs(self.f_rdata1(baseline)) + abs(self.f_rdata2(baseline))
                 self.dimy2data = abs(self.f_rdata1(baseline1)) + abs(self.f_rdata2(baseline1))
                 self.dimy3data = abs(self.f_rdata1(baseline2)) + abs(self.f_rdata2(baseline2))
-            else:
-                self.ry1 = abs(LaserData.d_min_s )
-                self.ry2 = abs(LaserData.d_min_s*0.4)
-                self.ry3 = abs(LaserData.d_min_s*0.19)
-                self.dimy1data = abs(LaserData.r_min_s)*0.45 + abs(LaserData.r_min_s*0.47)
-                self.dimy2data = abs(LaserData.r_min_s*0.4)*0.45 + abs(LaserData.r_min_s*0.4*0.47)
-                self.dimy3data = abs(LaserData.r_min_s*0.19)*0.45 + abs(LaserData.r_min_s*0.19*0.47)
         elif LaserData.mean < 0.095:
-            self.ry1 = 0
-            self.ry2 = 0
-            self.ry3 = 0
-            self.dimy1data = 0
-            self.dimy2data = 0
-            self.dimy3data = 0
+            self.ry1 = abs(LaserData.d_min_s)
+            self.ry2 = abs(LaserData.d_min_s * 0.4)
+            self.ry3 = abs(LaserData.d_min_s * 0.19)
+            self.dimy1data = abs(LaserData.r_min_s) * 0.45 + abs(LaserData.r_min_s * 0.47)
+            self.dimy2data = abs(LaserData.r_min_s * 0.4) * 0.45 + abs(LaserData.r_min_s * 0.4 * 0.47)
+            self.dimy3data = abs(LaserData.r_min_s * 0.19) * 0.45 + abs(LaserData.r_min_s * 0.19 * 0.47)
         else:
-        
-            self.ry1 = abs(LaserData.d_min_s )
-            self.ry2 = abs(LaserData.d_min_s*0.4)
-            self.ry3 = abs(LaserData.d_min_s*0.19)
-            self.dimy1data = abs(LaserData.r_min_s)*0.45 + abs(LaserData.r_min_s*0.47)
-            self.dimy2data = abs(LaserData.r_min_s*0.4)*0.45 + abs(LaserData.r_min_s*0.4*0.47)
-            self.dimy3data = abs(LaserData.r_min_s*0.19)*0.45 + abs(LaserData.r_min_s*0.19*0.47)
+            self.ry1 = abs(LaserData.d_min_s)
+            self.ry2 = abs(LaserData.d_min_s * 0.4)
+            self.ry3 = abs(LaserData.d_min_s * 0.19)
+            self.dimy1data = abs(LaserData.r_min_s) * 0.45 + abs(LaserData.r_min_s * 0.47)
+            self.dimy2data = abs(LaserData.r_min_s * 0.4) * 0.45 + abs(LaserData.r_min_s * 0.4 * 0.47)
+            self.dimy3data = abs(LaserData.r_min_s * 0.19) * 0.45 + abs(LaserData.r_min_s * 0.19 * 0.47)
             
             
 

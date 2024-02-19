@@ -36,7 +36,7 @@ class VideoThread(QThread):
         self.filter=0.05
         self.pixel_size=5.2
         self.paused = False
-        self.typecamera="Ueye"
+        self.typecamera="eye"
         if self.typecamera=="Ueye":
             self.camera=UeyeCamera(0)
             x,y,width,height=self.camera.get_aoi()
