@@ -22,6 +22,18 @@ Beamdiameter is an open-source and free software designed for laser beam charact
    - Python is a widely-used programming language known for its simplicity and versatility. As Beamdiameter is written in Python, users can leverage its extensive ecosystem of libraries and tools to tailor the software to their specific needs.
 
 With its real-time acquisition capability, compatibility with various cameras, and focus on accessibility and flexibility through open-source code, the MIT license, and the ISO-11146 standard, Beamdiameter stands out as a powerful tool for laser beam characterization in a variety of experimental environments and industrial applications.
+# Installation Instructions:
+```bash
+# After creating your virtual environment and activating it,
+# you can install the required libraries using the following command:
+pip install -r requirements.txt
+```
+## To run the software, execute the following command:
+```bash
+python3 main.py
+```
+## Compatibility:
+This software version is compatible with Python 3.9, 3.10, 3.11, and 3.12.
 
 **References:**
 
