@@ -116,7 +116,10 @@ def get_pixel_values_along_line(image: np.ndarray, start_x: float, start_y: floa
     y_rounded = np.round(y_indices).astype(int)
 
     # Retrieve image values at each x, y position
-    pixel_values = image[y_rounded, x_rounded]
+    if not ((x_rounded < 0).all() or (x_rounded >= image.shape[1]).all() or (y_rounded < 0).all() or (y_rounded >= image.shape[0]).all()):
+        pixel_values = image[y_rounded, x_rounded]
+    else:
+        pixel_values = image
 
     # Calculate the distance from the start of the line to each x, y position
     normalized_distances_from_start = (normalized_distances - 0.5) * line_length
@@ -587,9 +590,7 @@ def get_ellipse_axes(x_center: float, y_center: float, horizontal_diameter: floa
         # vertical diameter of 20, centered at (50, 50), and rotated by 45 degrees.
         axes_coords = get_ellipse_axes(50, 50, 10, 20, np.pi / 4, scaling_factor=3)
     """
-    # Check for valid inputs
-    if horizontal_diameter <= 0 or vertical_diameter <= 0 or scaling_factor <= 0:
-        raise ValueError("Diameters and scaling_factor must be positive values.")
+  
 
     # Calculate scaled semi-axes based on the scaling_factor
     x_radius = scaling_factor * horizontal_diameter / 2
