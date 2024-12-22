@@ -552,7 +552,8 @@ def generate_rotated_rectangle_mask(image: np.ndarray, center_x: float, center_y
 
     # Calculate the coordinates of the rotated rectangle vertices
     vertices = cv2.boxPoints(((center_x, center_y), (mask_width, mask_height), np.degrees(rotation_angle)))
-    vertices = np.int0(vertices)
+    vertices = np.array(vertices, dtype=np.int32)
+
 
     # Fill the mask with '1' values inside the rotated rectangle using cv2.fillConvexPoly
     cv2.fillConvexPoly(mask, vertices, 1)

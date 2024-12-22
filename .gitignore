@@ -1,0 +1,51 @@
+# Entorno virtual
+venv/
+.env/
+
+# Archivos de configuración sensibles
+*.env
+config.json
+secrets.json
+
+# Archivos y directorios creados por el sistema operativo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Archivos de caché y compilación
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de logs
+*.log
+*.bak
+*.swp
+
+# Paquetes instalados
+*.egg
+*.egg-info/
+dist/
+build/
+*.dist-info/
+
+# Librerías y dependencias
+pip-wheel-metadata/
+*.egg-info/
+.wheel/
+.cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Archivos temporales y de pruebas
+*.tmp
+*.test
+*.coverage
+.coverage.*
+.hypothesis/
+
+# Excluir el archivo requirements si generas múltiples entornos
+!requirements.txt
