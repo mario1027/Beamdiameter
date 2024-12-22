@@ -47,5 +47,4 @@ pip-wheel-metadata/
 .coverage.*
 .hypothesis/
 
-# Excluir el archivo requirements si generas múltiples entornos
-!requirements.txt
+
