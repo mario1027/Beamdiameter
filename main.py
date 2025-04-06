@@ -44,7 +44,7 @@ class VideoThread(QThread):
 	         exposure = 30)
 
         else:    
-            self.camera=CameraDummy("output_video.mp4")
+            self.camera=CameraDummy("spot_constant_visual_size.mp4")
             self.camera.run()
 
         

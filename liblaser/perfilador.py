@@ -30,7 +30,7 @@ def rotate_coordinates_around_center_around_center(
     center_x: float,
     center_y: float,
     angle_radians: float,
-    clockwise: bool = True
+    clockwise: bool = False
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Rotate the points represented by x_coords and y_coords around the specified center (center_x, center_y)
@@ -391,7 +391,7 @@ def detect_beam_size(image: np.ndarray) -> Tuple[float, float, float, float, flo
   
 
     # Invert the image, so the tilt angle is represented negatively.
-    tilt_angle *= -1
+    #tilt_angle *= -1
 
     return center_x, center_y, diameter_x, diameter_y, tilt_angle
 
