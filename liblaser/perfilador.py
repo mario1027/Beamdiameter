@@ -822,14 +822,3 @@ def rotate_coordinates_around_center(x: np.ndarray, y: np.ndarray, center_x: flo
 
     return final_x, final_y
 
-# @software{prahl_2023_10214838,
-#   author       = {Prahl, Scott},
-#   title        = {{laserbeamsize: a python module for ISO 11146 
-#                    analysis of laser beams}},
-#   month        = nov,
-#   year         = 2023,
-#   publisher    = {Zenodo},
-#   version      = {2.0.0},
-#   doi          = {10.5281/zenodo.10214838},
-#   url          = {https://doi.org/10.5281/zenodo.10214838}
-# }
