@@ -1,5 +1,5 @@
 # Beamdiameter: Software for Laser Beam Profile Analysis
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mario1027/Beamdiameter)
 Beamdiameter is an open-source and free software designed for laser beam characterization. Based on the ISO-11146 standard, Beamdiameter offers a flexible and powerful platform for efficiently and accurately analyzing laser beam profiles.
 
 ## Key Features:
